@@ -16,7 +16,7 @@ my @res;
   isa_ok($res[2], 'Mojo::DOM');
 
   my $now = $res[2]->find('time')->first;
-  my $temp = $now->find('temperature')->first;
+  my $temp = $now->at('temperature');
 
   diag "$temp->{value} $temp->{unit}";
   like "$temp->{value} $temp->{unit}", qr{^[\d\.]+ celcius$}, 'got temperature';

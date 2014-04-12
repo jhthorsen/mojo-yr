@@ -16,10 +16,9 @@ my @res;
   isa_ok($res[2], 'Mojo::DOM');
   ok $res[2]->find('time forecasttype area location in'), 'found time forecasttype area location in';
 
-  #my $today = $res[2]->children('time')->first;
-  #my $hordaland = $today->find('area[name="Hordaland"]')->first;
-  #diag $hordaland->find('header')->text;
-  #diag $hordaland->find('in')->text;
+  my $today = $res[2]->children('time')->first;
+  my $hordaland = $today->at('area[name="Hordaland"]');
+  diag $hordaland->at('header')->text;
 }
 
 {

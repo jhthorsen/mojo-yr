@@ -18,17 +18,17 @@ SYNOPSIS
       my $yr = Mojo::YR->new;
 
       # Fetch location_forecast ==========================================
-      my $now = $self->location_forecast->find('pointData > time')->first;
-      my $temp = $now->find('temperature');
+      my $now = $yr->location_forecast->find('pointData > time')->first;
+      my $temp = $now->at('temperature');
 
       warn "$temp->{value} $temp->{unit}";
 
       # Fetch text_forecast ==============================================
-      my $today = $self->text_forecast->children('time')->first;
-      my $hordaland = $today->find('area[name="Hordaland"]')->first;
+      my $today = $yr->text_forecast->children('time')->first;
+      my $hordaland = $today->at('area[name="Hordaland"]');
 
-      warn $hordaland->find('header')->text;
-      warn $hordaland->find('in')->text; # "in" holds the forecast text
+      warn $hordaland->at('header')->text;
+      warn $hordaland->at('in')->text; # "in" holds the forecast text
 
   url_map
       $hash_ref = $self->url_map;
