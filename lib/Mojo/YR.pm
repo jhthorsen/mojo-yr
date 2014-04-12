@@ -6,10 +6,38 @@ Mojo::YR - Get weather information from yr.no
 
 =head1 DESCRIPTION
 
+L<Mojo::YR> is an (a)synchronous weather data fetcher for the L<Mojolicious>
+framework. The backend for weather data is L<http://yr.no>.
+
+Look at the resources below for mere information about the API:
+
+=over 4
+
+=item * L<http://api.yr.no/weatherapi/documentation>
+
+=item * L<http://api.yr.no/weatherapi/locationforecast/1.8/documentation>
+
+=item * L<http://api.yr.no/weatherapi/textforecast/1.6/documentation>
+
+=back
+
 =head1 SYNOPSIS
 
   use Mojo::YR;
   my $yr = Mojo::YR->new;
+
+  # Fetch location_forecast ==========================================
+  my $now = $self->location_forecast->find('pointData > time')->first;
+  my $temp = $now->find('temperature');
+
+  warn "$temp->{value} $temp->{unit}";
+
+  # Fetch text_forecast ==============================================
+  my $today = $self->text_forecast->children('time')->first;
+  my $hordaland = $today->find('area[name="Hordaland"]')->first;
+
+  warn $hordaland->find('header')->text;
+  warn $hordaland->find('in')->text; # "in" holds the forecast text
 
 =cut
 
@@ -42,12 +70,8 @@ C<%args> is required (unless C<[$latitude,$longitude]> is given):
     longitude => $num,
   }
 
-C<$dom> is a L<Mojo::DOM> object you can use to query the result:
-
-  my $now = $self->location_forecast->find('pointData > time')->first;
-  my $temp = $now->find('temperature');
-
-  warn "$temp->{value} $temp->{unit}";
+C<$dom> is a L<Mojo::DOM> object you can use to query the result.
+See L</SYNOPSIS> for example.
 
 =cut
 
@@ -87,13 +111,8 @@ C<%args> is optional and has these default values:
     language => 'nb',
   }
 
-C<$dom> is a L<Mojo::DOM> object you can use to query the result:
-
-  my $today = $self->text_forecast->children('time')->first;
-  my $hordaland = $today->find('area[name="Hordaland"]')->first;
-
-  warn $hordaland->find('header')->text;
-  warn $hordaland->find('in')->text; # "in" holds the forecast text
+C<$dom> is a L<Mojo::DOM> object you can use to query the result.
+See L</SYNOPSIS> for example.
 
 =cut
 
@@ -162,6 +181,13 @@ sub _run_request {
   die $res[0] if $res[0];
   return $res[1];
 }
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2014 Jan Henning Thorsen
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
 
 =head1 AUTHOR
 
