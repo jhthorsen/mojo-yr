@@ -1,0 +1,11 @@
+NAME
+    Mojo::YR - Get weather information from yr.no
+
+DESCRIPTION
+SYNOPSIS
+      use Mojo::YR;
+      my $yr = Mojo::YR->new;
+
+AUTHOR
+    Jan Henning Thorsen - "jhthorsen@cpan.org"
+
