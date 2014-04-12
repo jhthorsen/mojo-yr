@@ -30,6 +30,22 @@ SYNOPSIS
       warn $hordaland->find('header')->text;
       warn $hordaland->find('in')->text; # "in" holds the forecast text
 
+  url_map
+      $hash_ref = $self->url_map;
+
+    Returns the addresses used to fetch data.
+
+    Note: These will always be what you expect. If the resources get changed
+    in the future, a "version()" attribute will be added to this class to
+    ensure you always get the same URL map.
+
+    Default:
+
+      {
+        location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
+        text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+      };
+
 METHODS
   location_forecast
       $self = $self->location_forecast([$latitude, $longitude], sub { my($self, $err, $dom) = @_; ... });
@@ -67,11 +83,11 @@ METHODS
     $dom is a Mojo::DOM object you can use to query the result. See
     "SYNOPSIS" for example.
 
-  url_for
-      $url = $self->url_for($type, \@query_params);
+COPYRIGHT AND LICENSE
+    Copyright (C) 2014 Jan Henning Thorsen
 
-    Used to create a Mojo::URL object. Supported types are
-    "location_forecast" and "text_forecast".
+    This program is free software, you can redistribute it and/or modify it
+    under the terms of the Artistic License version 2.0.
 
 AUTHOR
     Jan Henning Thorsen - "jhthorsen@cpan.org"

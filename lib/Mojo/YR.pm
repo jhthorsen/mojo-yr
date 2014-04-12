@@ -44,11 +44,36 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-has _ua => sub {
-  my $ua = Mojo::UserAgent->new;
+=head2 url_map
 
-  $ua->max_redirects(2);
-  $ua->ioloop(Mojo::IOLoop->singleton);
+  $hash_ref = $self->url_map;
+
+Returns the addresses used to fetch data.
+
+Note: These will always be what you expect. If the resources get changed in
+the future, a C<version()> attribute will be added to this class to ensure
+you always get the same URL map.
+
+Default:
+
+  {
+    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
+    text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+  };
+
+=cut
+
+has url_map => sub {
+  my $self = shift;
+
+  return {
+    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
+    text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+  };
+};
+
+has _ua => sub {
+  Mojo::UserAgent->new->max_redirects(2)->ioloop(Mojo::IOLoop->singleton);
 };
 
 =head1 METHODS
@@ -77,6 +102,7 @@ See L</SYNOPSIS> for example.
 
 sub location_forecast {
   my($self, $args, $cb) = @_;
+  my $url = Mojo::URL->new($self->url_map->{location_forecast});
 
   if(ref $args eq 'ARRAY') {
     $args = { latitude => $args->[0], longitude => $args->[1] };
@@ -85,15 +111,12 @@ sub location_forecast {
     return $self->$cb('latitude and/or longitude is missing', undef);
   }
 
-  $self->_run_request(
-    $self->url_for(
-      location_forecast => [
-        lon => $args->{longitude},
-        lat => $args->{latitude},
-      ],
-    ),
-    $cb,
-  );
+  $url->query([
+    lon => $args->{longitude},
+    lat => $args->{latitude},
+  ]);
+
+  $self->_run_request($url, $cb);
 }
 
 =head2 text_forecast
@@ -120,42 +143,14 @@ sub text_forecast {
   my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
   my $self = shift;
   my $args = shift || {};
+  my $url = Mojo::URL->new($self->url_map->{text_forecast});
 
-  $self->_run_request(
-    $self->url_for(
-      text_forecast => [
-        forecast => $args->{forecast} || 'land',
-        language => $args->{language} || 'nb',
-      ],
-    ),
-    $cb,
-  );
-}
+  $url->query([
+    forecast => $args->{forecast} || 'land',
+    language => $args->{language} || 'nb',
+  ]);
 
-=head2 url_for
-
-  $url = $self->url_for($type, \@query_params);
-
-Used to create a L<Mojo::URL> object. Supported types are "location_forecast"
-and "text_forecast".
-
-=cut
-
-sub url_for {
-  my($self, $type, $query_params) = @_;
-  my $url;
-
-  if($type eq 'location_forecast') {
-    $url = Mojo::URL->new('http://api.yr.no/weatherapi/locationforecast/1.8/');
-  }
-  elsif($type eq 'text_forecast') {
-    $url = Mojo::URL->new('http://api.yr.no/weatherapi/textforecast/1.6/');
-  }
-  else {
-    die "Invalid type: $type";
-  }
-
-  $url->query($query_params);
+  $self->_run_request($url, $cb);
 }
 
 sub _run_request {
