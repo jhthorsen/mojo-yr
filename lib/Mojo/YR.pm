@@ -27,7 +27,7 @@ Look at the resources below for mere information about the API:
   my $yr = Mojo::YR->new;
 
   # Fetch location_forecast ==========================================
-  my $now = $yr->location_forecast->find('pointData > time')->first;
+  my $now = $yr->location_forecast([59, 10])->find('pointData > time')->first;
   my $temp = $now->at('temperature');
 
   warn "$temp->{value} $temp->{unit}";
@@ -44,11 +44,13 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
+=head1 ATTRIBUTES
+
 =head2 url_map
 
   $hash_ref = $self->url_map;
 
-Returns the addresses used to fetch data.
+Returns the URL used to fetch data.
 
 Note: These will always be what you expect. If the resources get changed in
 the future, a C<version()> attribute will be added to this class to ensure
