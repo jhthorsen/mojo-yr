@@ -73,7 +73,7 @@ has url_map => sub {
 };
 
 has _ua => sub {
-  Mojo::UserAgent->new->max_redirects(2)->ioloop(Mojo::IOLoop->singleton);
+  Mojo::UserAgent->new;
 };
 
 =head1 METHODS
@@ -155,9 +155,12 @@ sub text_forecast {
 
 sub _run_request {
   my($self, $url, $cb) = @_;
-  my $delay = $cb ? undef : $self->_ua->ioloop->delay;
 
-  $cb = $delay->begin if $delay;
+  if(!$cb) {
+    my $tx = $self->_ua->get($url);
+    die scalar $tx->error if $tx->error;
+    return $tx->res->dom;
+  }
 
   Scalar::Util::weaken($self);
   $self->_ua->get(
@@ -171,10 +174,7 @@ sub _run_request {
     },
   );
 
-  return $self unless $delay;
-  my @res = $delay->wait;
-  die $res[0] if $res[0];
-  return $res[1];
+  return $self;
 }
 
 =head1 COPYRIGHT AND LICENSE
