@@ -44,6 +44,8 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
+our $VERSION = '0.01';
+
 =head1 ATTRIBUTES
 
 =head2 url_map
@@ -71,6 +73,7 @@ has url_map => sub {
   return {
     location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
     text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+    text_location_forecast => 'http://api.yr.no/weatherapi/textlocation/1.0/',
   };
 };
 
@@ -121,6 +124,47 @@ sub location_forecast {
   $self->_run_request($url, $cb);
 }
 
+=head2 text_location_forecast
+
+  $self = $self->text_location_forecast([$latitude, $longitude], sub { my($self, $err, $dom) = @_; ... });
+  $self = $self->text_location_forecast(\%args, sub { my($self, $err, $dom) = @_; ... });
+  $dom = $self->text_location_forecast([$latitude, $longitude]);
+  $dom = $self->text_location_forecast(\%args);
+
+Used to fetch
+L<textual weather forecast for a specified place|http://api.yr.no/weatherapi/textlocation/1.0/documentation>.
+
+C<%args> is required (unless C<[$latitude,$longitude]> is given):
+
+  {
+    latitude => $num,
+    longitude => $num,
+    language => 'nb', # default
+  }
+
+C<$dom> is a L<Mojo::DOM> object you can use to query the result.
+See L</SYNOPSIS> for example.
+
+=cut
+
+sub text_location_forecast {
+  my($self, $args, $cb) = @_;
+  my $url = Mojo::URL->new($self->url_map->{text_location_forecast});
+
+  if(ref $args eq 'ARRAY') {
+    $args = { latitude => $args->[0], longitude => $args->[1] };
+  }
+  if(2 != grep { defined $args->{$_} } qw( latitude longitude )) {
+    return $self->$cb('latitude and/or longitude is missing', undef);
+  }
+  $args->{language} ||= 'nb';
+
+  $url->query($args);
+
+  $self->_run_request($url, $cb);
+}
+
+
 =head2 text_forecast
 
   $dom = $self->text_forecast(\%args);
@@ -161,7 +205,7 @@ sub _run_request {
   if(!$cb) {
     my $tx = $self->_ua->get($url);
     die scalar $tx->error if $tx->error;
-    return $tx->res->dom;
+    return $tx->res->dom->children->first;
   }
 
   Scalar::Util::weaken($self);
@@ -189,6 +233,7 @@ the terms of the Artistic License version 2.0.
 =head1 AUTHOR
 
 Jan Henning Thorsen - C<jhthorsen@cpan.org>
+Marcus Ramberg - C<mramberg@cpan.org>
 
 =cut
 

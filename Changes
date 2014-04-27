@@ -1,6 +1,6 @@
 Revision history for Mojo-YR
 
-0.01
+0.01   2014-05-24
        * Started project
        * Add location_forecast()
        * Add text_forecast()
