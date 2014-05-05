@@ -44,7 +44,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 ATTRIBUTES
 
@@ -72,8 +72,9 @@ has url_map => sub {
 
   return {
     location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
-    text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+    text_forecast     => 'http://api.yr.no/weatherapi/textforecast/1.6/',
     text_location_forecast => 'http://api.yr.no/weatherapi/textlocation/1.0/',
+    sunrise                => 'http://api.yr.no/weatherapi/sunrise/1.0/',
   };
 };
 
@@ -106,20 +107,17 @@ See L</SYNOPSIS> for example.
 =cut
 
 sub location_forecast {
-  my($self, $args, $cb) = @_;
+  my ($self, $args, $cb) = @_;
   my $url = Mojo::URL->new($self->url_map->{location_forecast});
 
-  if(ref $args eq 'ARRAY') {
-    $args = { latitude => $args->[0], longitude => $args->[1] };
+  if (ref $args eq 'ARRAY') {
+    $args = {latitude => $args->[0], longitude => $args->[1]};
   }
-  if(2 != grep { defined $args->{$_} } qw( latitude longitude )) {
+  if (2 != grep { defined $args->{$_} } qw( latitude longitude )) {
     return $self->$cb('latitude and/or longitude is missing', undef);
   }
 
-  $url->query([
-    lon => $args->{longitude},
-    lat => $args->{latitude},
-  ]);
+  $url->query([lon => $args->{longitude}, lat => $args->{latitude},]);
 
   $self->_run_request($url, $cb);
 }
@@ -148,13 +146,13 @@ See L</SYNOPSIS> for example.
 =cut
 
 sub text_location_forecast {
-  my($self, $args, $cb) = @_;
+  my ($self, $args, $cb) = @_;
   my $url = Mojo::URL->new($self->url_map->{text_location_forecast});
 
-  if(ref $args eq 'ARRAY') {
-    $args = { latitude => $args->[0], longitude => $args->[1] };
+  if (ref $args eq 'ARRAY') {
+    $args = {latitude => $args->[0], longitude => $args->[1]};
   }
-  if(2 != grep { defined $args->{$_} } qw( latitude longitude )) {
+  if (2 != grep { defined $args->{$_} } qw( latitude longitude )) {
     return $self->$cb('latitude and/or longitude is missing', undef);
   }
   $args->{language} ||= 'nb';
@@ -186,23 +184,59 @@ See L</SYNOPSIS> for example.
 =cut
 
 sub text_forecast {
-  my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
+  my $cb   = ref $_[-1] eq 'CODE' ? pop : undef;
   my $self = shift;
   my $args = shift || {};
-  my $url = Mojo::URL->new($self->url_map->{text_forecast});
+  my $url  = Mojo::URL->new($self->url_map->{text_forecast});
 
-  $url->query([
-    forecast => $args->{forecast} || 'land',
-    language => $args->{language} || 'nb',
-  ]);
+  $url->query(
+    [
+      forecast => $args->{forecast} || 'land',
+      language => $args->{language} || 'nb',
+    ]
+  );
+
+  $self->_run_request($url, $cb);
+}
+
+=head2 sunrise
+
+  $dom = $self->sunrise(\%args);
+  $self = $self->sunrise(\%args, sub { my($self, $err, $dom) = @_; ... });
+
+Used to fetch
+L<When does the sun rise and set for a given place|http://api.yr.no/weatherapi/sunrise/1.0/documentation>
+
+C<%args> is required 
+
+  {
+    lat => $num,
+    lon => $num,
+    date => 'YYYY-MM-DD', # OR
+    from => 'YYYY-MM-DD',
+    to   => 'YYYY-MM-DD',
+  }
+
+C<$dom> is a L<Mojo::DOM> object you can use to query the result.
+See L</SYNOPSIS> for example.
+
+=cut
+
+sub sunrise {
+  my $cb   = ref $_[-1] eq 'CODE' ? pop : undef;
+  my $self = shift;
+  my $args = shift || {};
+  my $url  = Mojo::URL->new($self->url_map->{sunrise});
+
+  $url->query($args);
 
   $self->_run_request($url, $cb);
 }
 
 sub _run_request {
-  my($self, $url, $cb) = @_;
+  my ($self, $url, $cb) = @_;
 
-  if(!$cb) {
+  if (!$cb) {
     my $tx = $self->_ua->get($url);
     die scalar $tx->error if $tx->error;
     return $tx->res->dom->children->first;
@@ -212,11 +246,12 @@ sub _run_request {
   $self->_ua->get(
     $url,
     sub {
-      my($ua, $tx) = @_;
+      my ($ua, $tx) = @_;
       my $err = $tx->error;
 
       return $self->$cb($err, undef) if $err;
-      return $self->$cb('', $tx->res->dom->children->first); # <weather> is the first element. don't want that
+      return $self->$cb('', $tx->res->dom->children->first)
+        ;    # <weather> is the first element. don't want that
     },
   );
 
