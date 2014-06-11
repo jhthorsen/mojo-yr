@@ -15,11 +15,12 @@ my @res;
   is $res[1], '', 'callback without error';
   isa_ok($res[2], 'Mojo::DOM');
 
-  my $now = $res[2]->find('time')->first;
+  my $now  = $res[2]->find('time')->first;
   my $temp = $now->at('temperature');
 
   diag "$temp->{value} $temp->{unit}";
-  like "$temp->{value} $temp->{unit}", qr{^[\d\.]+ celcius$}, 'got temperature';
+  like "$temp->{value} $temp->{unit}", qr{^[\d\.]+ celcius$},
+    'got temperature';
 }
 
 done_testing;

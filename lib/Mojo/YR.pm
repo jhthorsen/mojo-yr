@@ -44,7 +44,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 ATTRIBUTES
 
@@ -54,14 +54,13 @@ our $VERSION = '0.02';
 
 Returns the URL used to fetch data.
 
-Note: These will always be what you expect. If the resources get changed in
-the future, a C<version()> attribute will be added to this class to ensure
-you always get the same URL map.
+Note: These will always be pointers to the current version. If you require a
+specific version, set it manually. Note: YR have short deprecation cycles.
 
 Default:
 
   {
-    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
+    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.9/',
     text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
   };
 
