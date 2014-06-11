@@ -18,7 +18,7 @@ my @res;
   is $res[1], '', 'callback without error';
   isa_ok($res[2], 'Mojo::DOM');
 
-  ok $res[2]->find('time location forecast', 'found time location forecast');
+  ok $res[2]->find('time location sun noon', 'found time location forecast');
 }
 
 done_testing;
