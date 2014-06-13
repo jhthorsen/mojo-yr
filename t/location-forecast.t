@@ -19,7 +19,7 @@ my @res;
   my $temp = $now->at('temperature');
 
   diag "$temp->{value} $temp->{unit}";
-  like "$temp->{value} $temp->{unit}", qr{^[\d\.]+ celcius$},
+  like "$temp->{value} $temp->{unit}", qr{^[\d\.]+ celsius$},
     'got temperature';
 }
 

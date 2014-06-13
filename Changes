@@ -1,5 +1,8 @@
 Revision history for Mojo-YR
 
+0.04   2014-06-13
+       * Fix documentation links to 1.9 version
+
 0.03   2014-06-11
        * Update location api version
        * Fix sunrise test

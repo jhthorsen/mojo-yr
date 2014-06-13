@@ -15,7 +15,7 @@ Look at the resources below for mere information about the API:
 
 =item * L<http://api.yr.no/weatherapi/documentation>
 
-=item * L<http://api.yr.no/weatherapi/locationforecast/1.8/documentation>
+=item * L<http://api.yr.no/weatherapi/locationforecast/1.9/documentation>
 
 =item * L<http://api.yr.no/weatherapi/textforecast/1.6/documentation>
 
@@ -44,7 +44,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 ATTRIBUTES
 
@@ -70,7 +70,7 @@ has url_map => sub {
   my $self = shift;
 
   return {
-    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
+    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.9/',
     text_forecast     => 'http://api.yr.no/weatherapi/textforecast/1.6/',
     text_location_forecast => 'http://api.yr.no/weatherapi/textlocation/1.0/',
     sunrise                => 'http://api.yr.no/weatherapi/sunrise/1.0/',
@@ -91,7 +91,7 @@ has _ua => sub {
   $dom = $self->location_forecast(\%args);
 
 Used to fetch
-L<weather forecast for a specified place|http://api.yr.no/weatherapi/locationforecast/1.8/documentation>.
+L<weather forecast for a specified place|http://api.yr.no/weatherapi/locationforecast/1.9/documentation>.
 
 C<%args> is required (unless C<[$latitude,$longitude]> is given):
 
