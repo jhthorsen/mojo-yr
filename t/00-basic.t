@@ -27,3 +27,5 @@ for my $file (@files) {
   Test::Pod::pod_file_ok($file);
   Test::Pod::Coverage::pod_coverage_ok($module);
 }
+
+diag( "Testing Mojo::YR $Mojo::YR::VERSION, Perl $], $^X" );

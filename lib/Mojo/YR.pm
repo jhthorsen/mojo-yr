@@ -13,11 +13,13 @@ Look at the resources below for mere information about the API:
 
 =over 4
 
-=item * L<http://api.yr.no/weatherapi/documentation>
+=item * L<http://api.met.no/weatherapi/documentation>
 
-=item * L<http://api.yr.no/weatherapi/locationforecast/1.9/documentation>
+=item * L<http://api.met.no/weatherapi/locationforecast/1.9/documentation>
 
-=item * L<http://api.yr.no/weatherapi/textforecast/1.6/documentation>
+=item * L<http://api.met.no/weatherapi/textforecast/1.6/documentation>
+
+=item * L<http://api.met.no/weatherapi/sunrise/1.1/documentation>
 
 =back
 
@@ -44,7 +46,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 ATTRIBUTES
 
@@ -70,10 +72,10 @@ has url_map => sub {
   my $self = shift;
 
   return {
-    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.9/',
-    text_forecast     => 'http://api.yr.no/weatherapi/textforecast/1.6/',
-    text_location_forecast => 'http://api.yr.no/weatherapi/textlocation/1.0/',
-    sunrise                => 'http://api.yr.no/weatherapi/sunrise/1.0/',
+    location_forecast      => 'http://api.met.no/weatherapi/locationforecast/1.9/',
+    text_forecast          => 'http://api.met.no/weatherapi/textforecast/1.6/',
+    text_location_forecast => 'http://api.met.no/weatherapi/textlocation/1.0/',
+    sunrise                => 'http://api.met.no/weatherapi/sunrise/1.1/',
   };
 };
 
@@ -206,7 +208,7 @@ sub text_forecast {
 Used to fetch
 L<When does the sun rise and set for a given place|http://api.yr.no/weatherapi/sunrise/1.0/documentation>
 
-C<%args> is required 
+C<%args> is required
 
   {
     lat => $num,
