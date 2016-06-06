@@ -1,5 +1,8 @@
 Revision history for Mojo-YR
 
+0.06   2016-06-06
+       * Fix prev release with missing manifest
+
 0.05   2016-06-06
        * Update to current sunrise api
 

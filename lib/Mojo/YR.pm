@@ -46,7 +46,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 ATTRIBUTES
 
@@ -72,8 +72,8 @@ has url_map => sub {
   my $self = shift;
 
   return {
-    location_forecast      => 'http://api.met.no/weatherapi/locationforecast/1.9/',
-    text_forecast          => 'http://api.met.no/weatherapi/textforecast/1.6/',
+    location_forecast => 'http://api.met.no/weatherapi/locationforecast/1.9/',
+    text_forecast     => 'http://api.met.no/weatherapi/textforecast/1.6/',
     text_location_forecast => 'http://api.met.no/weatherapi/textlocation/1.0/',
     sunrise                => 'http://api.met.no/weatherapi/sunrise/1.1/',
   };
