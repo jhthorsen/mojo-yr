@@ -2,32 +2,34 @@ package Mojo::YR;
 
 =head1 NAME
 
-Mojo::YR - Get weather information from yr.no
+Mojo::YR - Get weather information from met.no (not Yr)
 
 =head1 DESCRIPTION
 
 L<Mojo::YR> is an (a)synchronous weather data fetcher for the L<Mojolicious>
-framework. The backend for weather data is L<http://yr.no>.
+framework. The backend for weather data is L<https://api.met.no>;
+the YR name is a misnomer and the module has nothing to do with yr.no.
 
 Look at the resources below for mere information about the API:
 
 =over 4
 
-=item * L<http://api.yr.no/weatherapi/documentation>
+=item * L<http://api.met.no/weatherapi/documentation>
 
-=item * L<http://api.yr.no/weatherapi/locationforecast/1.8/documentation>
+=item * L<http://api.met.no/weatherapi/locationforecast/1.9/documentation>
 
-=item * L<http://api.yr.no/weatherapi/textforecast/1.6/documentation>
+=item * L<http://api.met.no/weatherapi/textforecast/1.6/documentation>
 
 =back
 
 =head1 SYNOPSIS
 
   use Mojo::YR;
+  use open qw/:std :utf8/;
   my $yr = Mojo::YR->new;
 
   # Fetch location_forecast ==========================================
-  my $now = $yr->location_forecast([59, 10])->find('pointData > time')->first;
+  my $now = $yr->location_forecast([59, 10])->find('product.pointData > time')->first;
   my $temp = $now->at('temperature');
 
   warn "$temp->{value} $temp->{unit}";
@@ -44,7 +46,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 ATTRIBUTES
 
@@ -61,8 +63,8 @@ you always get the same URL map.
 Default:
 
   {
-    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
-    text_forecast => 'http://api.yr.no/weatherapi/textforecast/1.6/',
+    location_forecast => 'http://api.met.no/weatherapi/locationforecast/1.8/',
+    text_forecast => 'http://api.met.no/weatherapi/textforecast/1.6/',
   };
 
 =cut
@@ -71,12 +73,14 @@ has url_map => sub {
   my $self = shift;
 
   return {
-    location_forecast => 'http://api.yr.no/weatherapi/locationforecast/1.8/',
-    text_forecast     => 'http://api.yr.no/weatherapi/textforecast/1.6/',
-    text_location_forecast => 'http://api.yr.no/weatherapi/textlocation/1.0/',
-    sunrise                => 'http://api.yr.no/weatherapi/sunrise/1.0/',
+    location_forecast => 'https://api.met.no/weatherapi/locationforecast/1.9/',
+    text_forecast     => 'https://api.met.no/weatherapi/textforecast/1.6/',
+    text_location_forecast => 'https://api.met.no/weatherapi/textlocation/1.0/',
+    sunrise                => 'https://api.met.no/weatherapi/sunrise/1.1/',
   };
 };
+
+has 'app' => (is => 'ro', required => 1);
 
 has _ua => sub {
   Mojo::UserAgent->new;
@@ -92,7 +96,7 @@ has _ua => sub {
   $dom = $self->location_forecast(\%args);
 
 Used to fetch
-L<weather forecast for a specified place|http://api.yr.no/weatherapi/locationforecast/1.8/documentation>.
+L<weather forecast for a specified place|http://api.met.no/weatherapi/locationforecast/1.8/documentation>.
 
 C<%args> is required (unless C<[$latitude,$longitude]> is given):
 
@@ -130,7 +134,7 @@ sub location_forecast {
   $dom = $self->text_location_forecast(\%args);
 
 Used to fetch
-L<textual weather forecast for a specified place|http://api.yr.no/weatherapi/textlocation/1.0/documentation>.
+L<textual weather forecast for a specified place|http://api.met.no/weatherapi/textlocation/1.0/documentation>.
 
 C<%args> is required (unless C<[$latitude,$longitude]> is given):
 
@@ -169,7 +173,7 @@ sub text_location_forecast {
   $self = $self->text_forecast(\%args, sub { my($self, $err, $dom) = @_; ... });
 
 Used to fetch
-L<textual weather forecast for all parts of the country|http://api.yr.no/weatherapi/textforecast/1.6/documentation>.
+L<textual weather forecast for all parts of the country|http://api.met.no/weatherapi/textforecast/1.6/documentation>.
 
 C<%args> is optional and has these default values:
 
@@ -205,9 +209,9 @@ sub text_forecast {
   $self = $self->sunrise(\%args, sub { my($self, $err, $dom) = @_; ... });
 
 Used to fetch
-L<When does the sun rise and set for a given place|http://api.yr.no/weatherapi/sunrise/1.0/documentation>
+L<When does the sun rise and set for a given place|http://api.met.no/weatherapi/sunrise/1.0/documentation>
 
-C<%args> is required 
+C<%args> is required
 
   {
     lat => $num,
@@ -236,14 +240,16 @@ sub sunrise {
 sub _run_request {
   my ($self, $url, $cb) = @_;
 
+  my $ua = $self->_ua;
+  $ua->transactor->name($self->app);
   if (!$cb) {
-    my $tx = $self->_ua->get($url);
+    my $tx = $ua->get($url);
     die scalar $tx->error if $tx->error;
     return $tx->res->dom->children->first;
   }
 
   Scalar::Util::weaken($self);
-  $self->_ua->get(
+  $ua->get(
     $url,
     sub {
       my ($ua, $tx) = @_;
