@@ -48,7 +48,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.08';
+our $VERSION = '0.07';
 
 =head1 ATTRIBUTES
 
