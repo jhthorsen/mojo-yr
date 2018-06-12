@@ -20,6 +20,8 @@ Look at the resources below for mere information about the API:
 
 =item * L<http://api.met.no/weatherapi/textforecast/1.6/documentation>
 
+=item * L<http://api.met.no/weatherapi/sunrise/1.1/documentation>
+
 =back
 
 =head1 SYNOPSIS
@@ -46,7 +48,7 @@ Look at the resources below for mere information about the API:
 use Mojo::Base -base;
 use Mojo::UserAgent;
 
-our $VERSION = '0.03';
+our $VERSION = '0.08';
 
 =head1 ATTRIBUTES
 
@@ -56,15 +58,14 @@ our $VERSION = '0.03';
 
 Returns the URL used to fetch data.
 
-Note: These will always be what you expect. If the resources get changed in
-the future, a C<version()> attribute will be added to this class to ensure
-you always get the same URL map.
+Note: These will always be pointers to the current version. If you require a
+specific version, set it manually. Note: YR have short deprecation cycles.
 
 Default:
 
   {
-    location_forecast => 'http://api.met.no/weatherapi/locationforecast/1.8/',
-    text_forecast => 'http://api.met.no/weatherapi/textforecast/1.6/',
+    location_forecast => 'https://api.met.no/weatherapi/locationforecast/1.8/',
+    text_forecast => 'https://api.met.no/weatherapi/textforecast/1.6/',
   };
 
 =cut
@@ -73,10 +74,10 @@ has url_map => sub {
   my $self = shift;
 
   return {
-    location_forecast => 'https://api.met.no/weatherapi/locationforecast/1.9/',
-    text_forecast     => 'https://api.met.no/weatherapi/textforecast/1.6/',
-    text_location_forecast => 'https://api.met.no/weatherapi/textlocation/1.0/',
+    location_forecast      => 'https://api.met.no/weatherapi/locationforecast/1.9/',
     sunrise                => 'https://api.met.no/weatherapi/sunrise/1.1/',
+    text_forecast          => 'https://api.met.no/weatherapi/textforecast/1.6/',
+    text_location_forecast => 'https://api.met.no/weatherapi/textlocation/1.0/',
   };
 };
 
@@ -96,7 +97,7 @@ has _ua => sub {
   $dom = $self->location_forecast(\%args);
 
 Used to fetch
-L<weather forecast for a specified place|http://api.met.no/weatherapi/locationforecast/1.8/documentation>.
+L<weather forecast for a specified place|https://api.met.no/weatherapi/locationforecast/1.8/documentation>.
 
 C<%args> is required (unless C<[$latitude,$longitude]> is given):
 
